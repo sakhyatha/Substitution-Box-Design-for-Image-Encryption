@@ -1,0 +1,75 @@
+#python code 
+
+import math;
+n=257;
+flag=0;
+for i in range(2,int(math.sqrt(n))+1):
+    if(n%i==0):
+        flag=1;
+        break;
+if(flag==0):
+    print("Its a prime number:");
+else:
+    print("Not a prime number:");
+if(flag==0):
+    list1=set();
+    list2=set();
+    for i in range(n-1):
+        if(i%2==1):
+            list1.add(i);
+        list2.add(i);
+    print("Select A value from the set O:");        
+    print(list1);                          #list of odd values in the range [0,255]
+    A=int(input());
+    print("Select B value from the set N");
+    print(list2);         #list of values range [0,255]
+    B=int(input());
+s=set(range(256));
+z=0;loc=-1;
+initial_box=list();
+if(n==257):
+    while(z<256):
+        R=(A*(z)+B)% n;
+        if(R==256):
+            loc=z;
+            initial_box.append(-1);
+        else:
+            initial_box.append(R);
+            s.remove(R);
+        z=z+1;
+    for i in s:
+        initial_box[loc]=i;    #The remaining value in the set ‘s’ is allocated to loc
+    #print(initial_box);    
+    for t in range(256):    #loop for finding Multiplicative Inverse
+        p=initial_box[t];
+        x=1;
+        v=(x*p)%257;
+        if(p==0 or p==1):
+            continue;
+        while(v!=1):
+            x=x+1;
+            v=(x*p)%257;
+        initial_box[t]=x;
+    #print(initial_box);
+    P=list();    #list of values in the range [0,15] in the order of their occurence 
+    R=list();
+    for i in range(256):
+        if(initial_box[i]<16):
+            P.append(initial_box[i]);
+    R=P;
+    #print(P);
+    count=0;permute=list();final_box=list();
+    for z in range(256):
+        if(z%16==0):
+            offset=R[count];
+            count=count+1;
+        permute.append(P[(offset+z%16+int(z/16))%16]);   #permutation table
+        final_box.append(initial_box[int(z/16)*16+permute[z]]); #final S-Box
+    #print(permute);
+    print(final_box);
+    f = open("mini.txt", "w");  //should create intially.
+    for i in range(len(final_box)):
+        f.write(str(final_box[i])+"");  #S-box values are written in “mini.txt” file,import to matlab 
+        if (i+1)%16==0:
+            f.write("\n");
+    f.close();           
