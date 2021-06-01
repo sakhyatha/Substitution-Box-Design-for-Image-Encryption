@@ -1,0 +1,63 @@
+%Matlab code
+
+function project(img,s_box,c)
+[M N]=size(img);              % 256*768
+[row column]=size(s_box);  %16*16 
+temp=s_box;
+for i=1:(M/row)-1
+temp=[temp s_box];
+end
+s1=temp;
+for i=1:(M/row)-1
+s1=vertcat(s1,temp);
+end
+%disp(size(s1));                     %256*256
+temp=s_box;
+for i=1:(N/column)-1
+temp=[temp s_box];
+end
+s2=temp;
+for i=1:(N/column)-1
+s2=vertcat(s2,temp);
+end
+%disp(size(s2));   %768*768
+temp=img;
+PS=temp;
+for k=1:M
+PS(k,:)=temp(s1(k),:);
+end
+temp=PS;
+f1=figure;
+imshow(PS);         %Encrypted Image (Substituted using S1)
+for k=1:N
+PS(:,k)=temp(:,s2(k));
+end 
+f2=figure;              %Encrypted Image (Substituted using S2)
+imshow(PS);
+encrypt=PS(:);                 %1-D array of pixels
+encrypt=reshape(encrypt.',1,[]);
+final_image=PS;
+x=1;y=1;
+temp=11;
+for t=1:M*N
+if temp==c
+c=mod((c+1),256);
+end
+temp=c;
+j = floor(c/16)+1;
+i=mod(c,16)+1;
+k1 = s_box(i, j);
+m = mod((i*c + k1),16)+1;
+n = mod((j * k1),16)+1;
+k2 = s_box(m, n);
+encrypt(t) =mod((PS(t) + k2),(256));
+encrypt(t)=xor(encrypt(t),k1);
+encrypt(t)=xor(encrypt(t),c);
+q = mod((k1 + k2),(251));
+encrypt = circshift(encrypt, mod(q,8));
+c= encrypt(t);
+final_image(t)=encrypt(t);
+end
+f3=figure;
+imshow(rgb2gray(final_image)); #final Encrypted Image
+end
